@@ -1,0 +1,74 @@
+// fclAccel.fcl, réalisé par Grégoire Aubert et Joël Cavat
+// En entrée, un capteur indiquant la distance de l'obstacle à
+// l'avant de la voiture
+// En sortie, la vitesse que doit avoir la voiture
+
+
+// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK steerFuzzyController
+
+// Define input variables
+VAR_INPUT
+	// Distance à l'avant de la voiture compris entre 0 et 200
+	focus_front : REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT
+	// Vitesse en sortie compris entre 0 et 300
+    speed : REAL;
+END_VAR
+
+// Fuzzify input variable 'focus_front'
+FUZZIFY focus_front
+    TERM front_far := (90, 0) (120, 1) (200, 1);
+    TERM front_mid_high := (50,0)(90,1)(120,0);
+    TERM front_mid_low := (0,0)(50,1)(90,0);
+    TERM front_near := (0, 1) (50,0) ;
+END_FUZZIFY
+
+
+// Defuzzify output variable 'speed'
+DEFUZZIFY speed
+    TERM speed_slow := 70;  // 60 pour CG Track 3 et Spring
+    TERM speed_medium :=  160; // 140 pour Spring
+    TERM speed_fast := 230; 
+    TERM speed_veryfast := 300;
+    // Centre de gravité pour singletons
+    METHOD : COGS;
+    // Default value is 0 (if no rule activates defuzzifier)
+    DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+
+	// Règles triviales : Si la distance de l'obstacle
+	// est proche, la vitesse doit être lente
+    RULE 1 : IF focus_front IS front_near 
+             THEN speed IS speed_slow;
+             
+    // Si la distance de l'obstacle
+	// est assez proche, la vitesse doit être moyenne
+    RULE 2 : IF focus_front IS front_mid_low
+             THEN speed IS speed_medium;          
+             
+    // Si la distance de l'obstacle
+	// est assez éloignée, la vitesse doit être rapide       
+    RULE 3 : IF focus_front IS front_mid_high
+             THEN speed IS speed_fast;
+             
+    // Si la distance de l'obstacle
+	// est très éloignée, la vitesse doit être très rapide  
+    RULE 4 : IF focus_front IS front_far
+             THEN speed IS speed_veryfast;
+    
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
