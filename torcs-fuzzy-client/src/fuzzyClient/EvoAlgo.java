@@ -70,7 +70,7 @@ public class EvoAlgo {
 		// Set the fitness function we want to use, which is our
 		// TorcsFitnessFunction.
 		// ---------------------------------------------------------
-		ExampleFitnessFunction fitnessFunction = new ExampleFitnessFunction();
+		MyFitnessFunction fitnessFunction = new MyFitnessFunction();
 		FitnessFunction myFunc = fitnessFunction;
 		conf.setFitnessFunction(myFunc);
 
