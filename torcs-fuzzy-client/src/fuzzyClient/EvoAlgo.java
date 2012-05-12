@@ -1,5 +1,4 @@
 package fuzzyClient;
-import java.util.Arrays;
 
 import org.jgap.Chromosome;
 import org.jgap.Configuration;
@@ -13,7 +12,7 @@ import org.jgap.impl.DoubleGene;
 import org.jgap.impl.IntegerGene;
 
 
-public class EvoAlgo {
+public class EvoAlgo implements ChromosomeDefinition {
 	
 	/**
 	 * The total number of times we'll let the population evolve.
@@ -22,30 +21,7 @@ public class EvoAlgo {
 	private static final int MAX_ALLOWED_EVOLUTIONS = 10;
 	private static final int POPULATION = 50;
 	
-	private static final int NB_DEFAULT = 1;
-	private static final int NB_INPUT = 21;
-	private static final int NB_FA_IN = 3;
-	private static final int NB_OUTPUT = 1;
-	private static final int NB_FA_OUT = 5;
-	private static final int NB_REGLE = 7;
-	private static final int NB_R_IN = 3;
-	private static final int NB_R_OUT = 1;
-	
-	private static final double SPEED_MIN = -1.;
-	private static final double SPEED_MAX = 2.5;
-	private static final double ANGLE_MIN = -1.;
-	private static final double ANGLE_MAX = 1.;
-	private static final double SENSOR_MIN = -0.5;
-	private static final double SENSOR_MAX = 2.5;
-	private static final double STEER_MIN = -0.5;
-	private static final double STEER_MAX = 0.5;
-	private static final double ACCEL_MIN = -1.;
-	private static final double ACCEL_MAX = 1.;
-	
-	private static final int REGLE_IN_MIN = 1;
-	private static final int REGLE_IN_MAX = NB_INPUT * NB_FA_IN;
-	private static final int REGLE_OUT_MIN = NB_INPUT * NB_FA_IN + 1;
-	private static final int REGLE_OUT_MAX = REGLE_OUT_MIN + NB_FA_OUT;
+
 	
 	
 
@@ -72,7 +48,7 @@ public class EvoAlgo {
 		// Set the fitness function we want to use, which is our
 		// TorcsFitnessFunction.
 		// ---------------------------------------------------------
-		MyFitnessFunction fitnessFunction = new MyFitnessFunction();
+		TorcsFitnessFunction fitnessFunction = new TorcsFitnessFunction(accel);
 		FitnessFunction myFunc = fitnessFunction;
 		conf.setFitnessFunction(myFunc);
 
@@ -148,8 +124,8 @@ public class EvoAlgo {
 
 		IChromosome bestSolutionSoFar = population.getFittestChromosome();
 		System.out.println("BEST SYSTEM fitness score : " + bestSolutionSoFar.getFitnessValue());
-		int[] intArray = fitnessFunction.constructArray(bestSolutionSoFar);
-		System.out.println("The best solution is : " + Arrays.toString(intArray));
+//		int[] intArray = fitnessFunction.constructArray(bestSolutionSoFar);
+//		System.out.println("The best solution is : " + Arrays.toString(intArray));
 	}
 	
 	/**

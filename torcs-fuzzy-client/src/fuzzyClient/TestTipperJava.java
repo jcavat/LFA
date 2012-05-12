@@ -1,4 +1,4 @@
-package net.sourceforge.jFuzzyLogic.demo.tipper;
+package fuzzyClient;
 
 import java.util.HashMap;
 

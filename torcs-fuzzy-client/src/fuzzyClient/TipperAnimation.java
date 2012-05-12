@@ -1,4 +1,4 @@
-package net.sourceforge.jFuzzyLogic.demo.tipper;
+package fuzzyClient;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.plot.JDialogFis;
