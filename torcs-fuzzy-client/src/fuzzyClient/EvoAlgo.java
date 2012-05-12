@@ -62,10 +62,11 @@ public class EvoAlgo implements ChromosomeDefinition {
 	                             NB_REGLE * (NB_R_IN + NB_R_OUT)];
 		
 		//Configure the default gene
-		if(accel)
-			genes[0] = new DoubleGene(conf, ACCEL_MIN, ACCEL_MAX);
-		else
-			genes[0] = new DoubleGene(conf, STEER_MIN, STEER_MAX);
+		for(int i = 0; i < NB_DEFAULT; i++)
+			if(accel && i == 0)
+				genes[i] = new DoubleGene(conf, ACCEL_MIN, ACCEL_MAX);
+			else
+				genes[i] = new DoubleGene(conf, STEER_MIN, STEER_MAX);
 		
 		// Configure the speed input genes and the angle input genes
 		for(int i = 0; i < NB_FA_IN; i++){
@@ -79,7 +80,7 @@ public class EvoAlgo implements ChromosomeDefinition {
         
         // Configure the output genes
         for(int i = 0; i < NB_OUTPUT * NB_FA_OUT; i++)
-        	if(accel)
+        	if(accel && i < NB_FA_OUT)
         		genes[i + NB_INPUT * NB_FA_IN + NB_DEFAULT] = new DoubleGene(conf, ACCEL_MIN, ACCEL_MAX);
         	else
         		genes[i + NB_INPUT * NB_FA_IN + NB_DEFAULT] = new DoubleGene(conf, STEER_MIN, STEER_MAX);
