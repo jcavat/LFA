@@ -1,5 +1,7 @@
 package fuzzyClient;
 
+import java.util.HashMap;
+
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
 import net.sourceforge.jFuzzyLogic.defuzzifier.DefuzzifierCenterOfGravity;
@@ -17,7 +19,9 @@ import net.sourceforge.jFuzzyLogic.rule.RuleBlock;
 import net.sourceforge.jFuzzyLogic.rule.RuleExpression;
 import net.sourceforge.jFuzzyLogic.rule.RuleTerm;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
+import net.sourceforge.jFuzzyLogic.ruleAccumulationMethod.RuleAccumulationMethod;
 import net.sourceforge.jFuzzyLogic.ruleAccumulationMethod.RuleAccumulationMethodMax;
+import net.sourceforge.jFuzzyLogic.ruleAccumulationMethod.RuleAccumulationMethodSum;
 import net.sourceforge.jFuzzyLogic.ruleActivationMethod.RuleActivationMethodMin;
 import net.sourceforge.jFuzzyLogic.ruleConnectionMethod.RuleConnectionMethodAndMin;
 import net.sourceforge.jFuzzyLogic.ruleConnectionMethod.RuleConnectionMethodOrMax;
@@ -46,7 +50,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 	}
 
 	// Decode the chromosome in order to construct a FCL
-	public int[] constructFCL(IChromosome a_potentialSolution) {
+	public FIS constructFCL(IChromosome a_potentialSolution) {
 		
 		Gene[] genes = a_potentialSolution.getGenes();
 		
@@ -116,7 +120,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 									new Value((Double)genes[j+1+i*NB_FA_IN+NB_DEFAULT].getAllele()));
 				
 				// Add a label and add it to the input variable
-				inputs[i].add("in"+i+"_"+j, memFunc);
+				inputs[i].add("in_"+(j+i*NB_FA_IN), memFunc);
 			}
 		}
 		
@@ -135,7 +139,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 								new Value((Double)genes[j+i*NB_FA_OUT+NB_INPUT*NB_FA_IN+NB_DEFAULT].getAllele()));
 				
 				// Add a label and add it to the output variable
-				outputs[i].add("out"+i+"_"+j, memFunc);	
+				outputs[i].add("out_"+(j+i*NB_FA_OUT), memFunc);	
         	}
 
         	// Set the default value
@@ -146,16 +150,52 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
         }
 		
 		
+		//		RULEBLOCK No1
+		//		   ACCU : MAX;
+		//		   AND : MIN;
+		//		   ACT : MIN;
+		RuleBlock ruleBlock = new RuleBlock(functionBlock);
+		ruleBlock.setName("No1");
+		ruleBlock.setRuleAccumulationMethod(new RuleAccumulationMethodMax());
+		ruleBlock.setRuleActivationMethod(new RuleActivationMethodMin());
 		
-		int numberOfGene = genes.length;
-		int[] intArray = new int[numberOfGene];
-		
-		for(int i = 0; i < numberOfGene; i++)
-		{
-			intArray[i] = (Integer)genes[i].getAllele();
+		// Decode the chromosome to add the rules to the FCL
+		Rule rule;
+		int pos;
+		for(int i = 0; i < NB_REGLE; i++){
+		//		   RULE 1 : IF service IS poor OR food is rancid THEN tip IS cheap;
+			rule = new Rule("Rule"+i, ruleBlock);
+			
+			// Create the terms of the expression
+			RuleExpression expression = new RuleExpression();
+			for(int j = 0; j < NB_R_IN; j++){
+				pos = (Integer)genes[j+i*NB_R_IN+NB_OUTPUT*NB_FA_OUT+NB_INPUT*NB_FA_IN+NB_DEFAULT].getAllele();
+				expression.add(new RuleTerm(inputs[pos / NB_FA_IN], "in_" + pos, false));
+			}
+			rule.setAntecedents(expression);
+			
+			// Add the consequent
+			for(int j = 0; j < NB_R_OUT; j++){
+				pos = (Integer)genes[j+NB_R_IN+i*(NB_R_IN + NB_R_OUT)+NB_OUTPUT*NB_FA_OUT+NB_INPUT*NB_FA_IN+NB_DEFAULT].getAllele();
+				rule.addConsequent(outputs[pos / NB_FA_OUT], "out_" + pos, false);
+			}
+			
+			ruleBlock.add(rule);
 		}
 		
-		return intArray;
+		//		END_RULEBLOCK
+		//
+		//		END_FUNCTION_BLOCK
+		HashMap<String, RuleBlock> ruleBlocksMap = new HashMap<String, RuleBlock>();
+		ruleBlocksMap.put(ruleBlock.getName(), ruleBlock);
+		functionBlock.setRuleBlocks(ruleBlocksMap);
+		
+		//---
+		// Show generated FIS (FCL) and show animation
+		//---
+		System.out.println(fis);
+		
+		return fis;
 	}
 	
 	//The fitness function.

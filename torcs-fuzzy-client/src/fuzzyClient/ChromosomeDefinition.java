@@ -33,9 +33,9 @@ public interface ChromosomeDefinition {
 	static final double OUTPUT_MIN = -5.;
 	static final double OUTPUT_MAX = 5.;
 	
-	static final int REGLE_IN_MIN = 1;
+	static final int REGLE_IN_MIN = 0;
 	static final int REGLE_IN_MAX = NB_INPUT * NB_FA_IN;
-	static final int REGLE_OUT_MIN = NB_INPUT * NB_FA_IN + 1;
-	static final int REGLE_OUT_MAX = REGLE_OUT_MIN + NB_FA_OUT;
+	static final int REGLE_OUT_MIN = 0;
+	static final int REGLE_OUT_MAX = NB_OUTPUT * NB_FA_OUT;
 	
 }
