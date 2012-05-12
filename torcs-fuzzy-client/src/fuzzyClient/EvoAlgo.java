@@ -9,6 +9,7 @@ import org.jgap.Genotype;
 import org.jgap.IChromosome;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.impl.DefaultConfiguration;
+import org.jgap.impl.DoubleGene;
 import org.jgap.impl.IntegerGene;
 
 
@@ -52,7 +53,8 @@ public class EvoAlgo {
 	 * Executes the genetic algorithm
 	 * @throws InvalidConfigurationException 
 	 */
-	public static void launchEvo() throws InvalidConfigurationException {
+	public static void launchEvo(boolean accel) throws InvalidConfigurationException {
+		
 		// Start with a DefaultConfiguration, which comes setup with the
 		// most common settings.
 		Configuration.reset();
@@ -78,18 +80,48 @@ public class EvoAlgo {
 		// Chromosomes to be setup. We do that by actually creating a
 		// sample Chromosome and then setting it on the Configuration
 		// object.
-		int numberOfIntegerGenes = 10;
-		Gene[] sampleGenes = new Gene[numberOfIntegerGenes];
+		Gene[] genes = new Gene[ NB_DEFAULT + 
+	                             NB_INPUT * NB_FA_IN + 
+	                             NB_OUTPUT * NB_FA_OUT + 
+	                             NB_REGLE * (NB_R_IN + NB_R_OUT)];
 		
-
-		//Configure each gene
-		for(int i = 0; i < numberOfIntegerGenes; i++ )
-		{
-			sampleGenes[i] = new IntegerGene(conf, 0, numberOfIntegerGenes-1);
+		//Configure the default gene
+		if(accel)
+			genes[0] = new DoubleGene(conf, ACCEL_MIN, ACCEL_MAX);
+		else
+			genes[0] = new DoubleGene(conf, STEER_MIN, STEER_MAX);
+		
+		// Configure the speed input genes and the angle input genes
+		for(int i = 0; i < NB_FA_IN; i++){
+			genes[i + NB_DEFAULT] = new DoubleGene(conf, SPEED_MIN, SPEED_MAX);
+			genes[i + NB_DEFAULT + NB_FA_IN] = new DoubleGene(conf, ANGLE_MIN, ANGLE_MAX);
 		}
-
-		IChromosome sampleChromosome = new Chromosome(conf, sampleGenes);
-		conf.setSampleChromosome(sampleChromosome);
+		
+		// Configure the sensors genes
+        for(int i = NB_DEFAULT + 2 * NB_FA_IN; i < NB_INPUT * NB_FA_IN + NB_DEFAULT; i++ )
+			genes[i] = new DoubleGene(conf, SENSOR_MIN, SENSOR_MAX);
+        
+        // Configure the output genes
+        for(int i = 0; i < NB_OUTPUT * NB_FA_OUT; i++)
+        	if(accel)
+        		genes[i + NB_INPUT * NB_FA_IN + NB_DEFAULT] = new DoubleGene(conf, ACCEL_MIN, ACCEL_MAX);
+        	else
+        		genes[i + NB_INPUT * NB_FA_IN + NB_DEFAULT] = new DoubleGene(conf, STEER_MIN, STEER_MAX);
+        
+        // Configure the rules genes
+        for(int i = 0; i < NB_REGLE; i++){
+        	
+        	// Configure the conditional genes
+        	for(int j = 0; j < NB_R_IN; j++)
+        		genes[i * (NB_R_IN + NB_R_OUT) + j + NB_OUTPUT * NB_FA_OUT + NB_INPUT * NB_FA_IN + NB_DEFAULT] = new IntegerGene(conf, REGLE_IN_MIN, REGLE_IN_MAX);
+        	
+        	// Configure the result genes
+        	genes[i * (NB_R_IN + NB_R_OUT) + NB_R_IN + NB_OUTPUT * NB_FA_OUT + NB_INPUT * NB_FA_IN + NB_DEFAULT] = new IntegerGene(conf, REGLE_OUT_MIN, REGLE_OUT_MAX);
+        		
+        }
+        
+		IChromosome chromosome = new Chromosome(conf, genes);
+		conf.setSampleChromosome(chromosome);
 		// Finally, we need to tell the Configuration object how many
 		// Chromosomes we want in our population. The more Chromosomes,
 		// the larger number of potential solutions (which is good for
@@ -105,12 +137,11 @@ public class EvoAlgo {
 		// ---------------------------------------------------------------
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++) {
-				population.evolve();
-				System.out.println("GEN : " + (i+1) + " / " + MAX_ALLOWED_EVOLUTIONS);
-				/*
-				IChromosome bestSolutionSoFar = population.getFittestChromosome();
-				System.out.println("BEST SYSTEM : " + bestSolutionSoFar.getFitnessValue());
-				*/
+			population.evolve();
+			System.out.println("GEN : " + (i+1) + " / " + MAX_ALLOWED_EVOLUTIONS);
+//			IChromosome bestSolutionSoFar = population.getFittestChromosome();
+//			System.out.println("BEST SYSTEM : " + bestSolutionSoFar.getFitnessValue());
+				
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total evolution time: " + ( endTime - startTime) + " ms");
@@ -127,10 +158,7 @@ public class EvoAlgo {
 	 * @throws InvalidConfigurationException 
 	 */
 	public static void main(String[] args) throws InvalidConfigurationException {
-		
-		System.out.println("Example Program");
-		System.out.println("The goal is to find the int array [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]");
-		launchEvo();
+		launchEvo(true);
 	}
 
 }
