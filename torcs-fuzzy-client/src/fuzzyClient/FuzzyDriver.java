@@ -1,4 +1,6 @@
 package fuzzyClient;
+import org.jgap.InvalidConfigurationException;
+
 import net.sourceforge.jFuzzyLogic.FIS;
 
 /*
@@ -57,8 +59,20 @@ public class FuzzyDriver extends CarController{
 
 	public FuzzyDriver() {
 		// Load from 'FCL' file
-		fisSteer = FIS.load(fclFileSteer,true);
-		fisAccel = FIS.load(fclFileAccel,true);
+		//fisSteer = FIS.load(fclFileSteer,true);
+		//fisAccel = FIS.load(fclFileAccel,true);
+		
+		// Evolve the FCL
+		try{
+			fisSteer = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(false));
+			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
+			
+			System.out.println(fisSteer);
+			System.out.println(fisAccel);
+		}
+		catch(InvalidConfigurationException e){
+			System.err.println(e);
+		}
 		 
 		// Error while loading?
 		if( fisSteer == null ) { 

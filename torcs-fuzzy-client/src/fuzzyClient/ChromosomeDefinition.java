@@ -3,9 +3,9 @@ package fuzzyClient;
 /*
  * Define a chromosome.
  * The chromosome sequence :
- * |     Double     | ... | Double | Double | Double | ... | Double | Double | Double | Integer | Integer | Integer | Integer | ... |
- * |                |     |                          |     |                          |          Conditions         | Result  |
- * | Default Output |     |        First Input       |     |          Output          |               First Rule              |
+ * |     Double     | ... | Double | ... | Double | ... | Double | ... | Double | Integer | ... | Integer | Integer | ... |
+ * |                |     |                       |     |                       |          Conditions     | Result  |
+ * | Default Output |     |        First Input    |     |          Output       |             First Rule            |
  */
 public interface ChromosomeDefinition {
 	
@@ -34,8 +34,8 @@ public interface ChromosomeDefinition {
 	static final double OUTPUT_MAX = 5.;
 	
 	static final int REGLE_IN_MIN = 0;
-	static final int REGLE_IN_MAX = NB_INPUT * NB_FA_IN;
+	static final int REGLE_IN_MAX = NB_INPUT * NB_FA_IN - 1;
 	static final int REGLE_OUT_MIN = 0;
-	static final int REGLE_OUT_MAX = NB_OUTPUT * NB_FA_OUT;
+	static final int REGLE_OUT_MAX = NB_OUTPUT * NB_FA_OUT - 1;
 	
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -58,7 +59,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 	}
 
 	// Decode the chromosome in order to construct a FCL
-	public FIS constructFCL(IChromosome a_potentialSolution) {
+	public static FIS constructFCL(IChromosome a_potentialSolution) {
 		
 		Gene[] genes = a_potentialSolution.getGenes();
 		
@@ -67,7 +68,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 		
 		// FUNCTION_BLOCK fuzzyDriver
 		FunctionBlock functionBlock = new FunctionBlock(fis);
-		fis.addFunctionBlock("fuzzyDriver", functionBlock);
+		fis.addFunctionBlock("EvoDriver", functionBlock);
 
 		//		VAR_INPUT              
 		//		   input0  : REAL;
@@ -106,6 +107,12 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 			//		   TERM in_i_2 := (j-1, 0) (j, 1) (INPUT_MAX, 1) (INPUT_MAX, 0);
 			//		END_FUZZIFY
 			
+			// Sort the values
+			double[] sortedVal = new double[NB_FA_IN]; 
+			for(int j = 0;j < NB_FA_IN;j++)
+				sortedVal[j] = (Double)genes[j+i*NB_FA_IN+NB_DEFAULT].getAllele();
+			Arrays.sort(sortedVal);
+			
 			for(int j = 0;j < NB_FA_IN;j++){
 				
 				// Define the membership function
@@ -113,19 +120,19 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 					memFunc = new MembershipFunctionTrapetzoidal(
 									new Value(INPUT_MIN), 
 									new Value(INPUT_MIN), 
-									new Value((Double)genes[j+i*NB_FA_IN+NB_DEFAULT].getAllele()), 
-									new Value((Double)genes[j+1+i*NB_FA_IN+NB_DEFAULT].getAllele()));
+									new Value(sortedVal[j]), 
+									new Value(sortedVal[j+1]));
 				else if(j == NB_FA_IN - 1)
 					memFunc = new MembershipFunctionTrapetzoidal(
-									new Value((Double)genes[j-1+i*NB_FA_IN+NB_DEFAULT].getAllele()), 
-									new Value((Double)genes[j+i*NB_FA_IN+NB_DEFAULT].getAllele()),
+									new Value(sortedVal[j-1]), 
+									new Value(sortedVal[j]),
 									new Value(INPUT_MAX), 
 									new Value(INPUT_MAX));
 				else
 					memFunc = new MembershipFunctionTriangular(
-									new Value((Double)genes[j-1+i*NB_FA_IN+NB_DEFAULT].getAllele()),
-									new Value((Double)genes[j+i*NB_FA_IN+NB_DEFAULT].getAllele()),
-									new Value((Double)genes[j+1+i*NB_FA_IN+NB_DEFAULT].getAllele()));
+									new Value(sortedVal[j-1]),
+									new Value(sortedVal[j]),
+									new Value(sortedVal[j+1]));
 				
 				// Add a label and add it to the input variable
 				inputs[i].add("in_"+(j+i*NB_FA_IN), memFunc);
@@ -141,6 +148,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 		//		   DEFAULT := defaultGene;
 		//		END_DEFUZZIFY
         for(int i = 0; i < NB_OUTPUT; i++){
+              	
         	for(int j = 0; j < NB_FA_OUT; j++){
         		// Define the membership function
 				memFunc = new MembershipFunctionSingleton(
@@ -171,14 +179,19 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 		Rule rule;
 		int pos;
 		for(int i = 0; i < NB_REGLE; i++){
-		//		   RULE 1 : IF service IS poor OR food is rancid THEN tip IS cheap;
+		//		   RULE 1 : IF cond1 IS x AND cond2 is y AND cond3 is z THEN output IS c;
 			rule = new Rule("Rule"+i, ruleBlock);
 			
 			// Create the terms of the expression
 			RuleExpression expression = new RuleExpression();
 			for(int j = 0; j < NB_R_IN; j++){
 				pos = (Integer)genes[j+i*NB_R_IN+NB_OUTPUT*NB_FA_OUT+NB_INPUT*NB_FA_IN+NB_DEFAULT].getAllele();
-				expression.add(new RuleTerm(inputs[pos / NB_FA_IN], "in_" + pos, false));
+				try{
+					expression.add(new RuleTerm(inputs[pos / NB_FA_IN], "in_" + pos, false));
+				}
+				catch(RuntimeException e){
+					expression = new RuleExpression(expression, new RuleTerm(inputs[pos / NB_FA_IN], "in_" + pos, false), new RuleConnectionMethodAndMin());
+				}
 			}
 			rule.setAntecedents(expression);
 			
@@ -201,7 +214,7 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 		//---
 		// Show generated FIS (FCL) and show animation
 		//---
-		System.out.println(fis);
+		//System.out.println(fis);
 		
 		return fis;
 	}

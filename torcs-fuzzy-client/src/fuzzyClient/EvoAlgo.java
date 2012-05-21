@@ -1,5 +1,7 @@
 package fuzzyClient;
 
+import net.sourceforge.jFuzzyLogic.FIS;
+
 import org.jgap.Chromosome;
 import org.jgap.Configuration;
 import org.jgap.FitnessFunction;
@@ -22,14 +24,11 @@ public class EvoAlgo implements ChromosomeDefinition {
 	private static final int POPULATION = 50;
 	
 
-	
-	
-
 	/**
 	 * Executes the genetic algorithm
 	 * @throws InvalidConfigurationException 
 	 */
-	public static void launchEvo(boolean accel) throws InvalidConfigurationException {
+	public static IChromosome launchEvo(boolean accel) throws InvalidConfigurationException {
 		
 		// Start with a DefaultConfiguration, which comes setup with the
 		// most common settings.
@@ -116,17 +115,15 @@ public class EvoAlgo implements ChromosomeDefinition {
 		for (int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++) {
 			population.evolve();
 			System.out.println("GEN : " + (i+1) + " / " + MAX_ALLOWED_EVOLUTIONS);
-//			IChromosome bestSolutionSoFar = population.getFittestChromosome();
-//			System.out.println("BEST SYSTEM : " + bestSolutionSoFar.getFitnessValue());
-				
+			IChromosome bestSolutionSoFar = population.getFittestChromosome();
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total evolution time: " + ( endTime - startTime) + " ms");
 
 		IChromosome bestSolutionSoFar = population.getFittestChromosome();
-		System.out.println("BEST SYSTEM fitness score : " + bestSolutionSoFar.getFitnessValue());
-//		int[] intArray = fitnessFunction.constructArray(bestSolutionSoFar);
-//		System.out.println("The best solution is : " + Arrays.toString(intArray));
+		System.out.println("Meilleure solution (fitness : " + bestSolutionSoFar.getFitnessValue()+" / 1'000'000) : ");
+		
+		return bestSolutionSoFar;
 	}
 	
 	/**
@@ -135,7 +132,7 @@ public class EvoAlgo implements ChromosomeDefinition {
 	 * @throws InvalidConfigurationException 
 	 */
 	public static void main(String[] args) throws InvalidConfigurationException {
-		launchEvo(true);
+		launchEvo(false);
 	}
 
 }
