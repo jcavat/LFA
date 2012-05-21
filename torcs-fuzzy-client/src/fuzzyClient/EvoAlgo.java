@@ -20,8 +20,8 @@ public class EvoAlgo implements ChromosomeDefinition {
 	 * The total number of times we'll let the population evolve.
 	 * the Population
 	 */
-	private static final int MAX_ALLOWED_EVOLUTIONS = 10;
-	private static final int POPULATION = 50;
+	private static final int MAX_ALLOWED_EVOLUTIONS = 40;
+	private static final int POPULATION = 20;
 	
 
 	/**
@@ -114,11 +114,11 @@ public class EvoAlgo implements ChromosomeDefinition {
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++) {
 			population.evolve();
-			System.out.println("GEN : " + (i+1) + " / " + MAX_ALLOWED_EVOLUTIONS);
 			IChromosome bestSolutionSoFar = population.getFittestChromosome();
+			System.out.println("GEN : " + (i+1) + " / " + MAX_ALLOWED_EVOLUTIONS + "  (Meilleur solution : " + bestSolutionSoFar.getFitnessValue() + " / 1'000'000)");
 		}
 		long endTime = System.currentTimeMillis();
-		System.out.println("Total evolution time: " + ( endTime - startTime) + " ms");
+		System.out.println("Total evolution time: " + (( endTime - startTime ) / 60000. > 1. ? ( endTime - startTime ) / 60000. + " min" : ( endTime - startTime ) + " ms"));
 
 		IChromosome bestSolutionSoFar = population.getFittestChromosome();
 		System.out.println("Meilleure solution (fitness : " + bestSolutionSoFar.getFitnessValue() + " / 1'000'000) : ");

@@ -14,7 +14,7 @@ public interface ChromosomeDefinition {
 	static final int NB_OUTPUT = 1;
 	static final int NB_DEFAULT = NB_OUTPUT;
 	static final int NB_FA_OUT = 5;
-	static final int NB_REGLE = 7;
+	static final int NB_REGLE = 5;
 	static final int NB_R_IN = 3;
 	static final int NB_R_OUT = 1;
 	

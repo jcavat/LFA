@@ -59,8 +59,8 @@ public class FuzzyDriver extends CarController implements ChromosomeDefinition{
 
 	public FuzzyDriver() {
 		// Load from 'FCL' file
-		//fisSteer = FIS.load(fclFileSteer,true);
-		//fisAccel = FIS.load(fclFileAccel,true);
+//		fisSteer = FIS.load(fclFileSteer,true);
+//		fisAccel = FIS.load(fclFileAccel,true);
 		
 		// Evolve the FCL
 		try{
@@ -129,19 +129,16 @@ public class FuzzyDriver extends CarController implements ChromosomeDefinition{
 	private float getAccel(SensorModel sensors, float steer)
 	{
 		// Set inputs
-		fisSteer.setVariable("input0", sensors.getSpeed());
-		fisSteer.setVariable("input1", sensors.getAngleToTrackAxis());
+		fisAccel.setVariable("input0", sensors.getSpeed());
+		fisAccel.setVariable("input1", sensors.getAngleToTrackAxis());
 		for(int i = 2; i < NB_INPUT; i++)
-			fisSteer.setVariable("input"+i, sensors.getTrackEdgeSensors()[i-2]);
+			fisAccel.setVariable("input"+i, sensors.getTrackEdgeSensors()[i-2]);
 
 		// Evaluate the fuzzy system
-		fisSteer.evaluate();
+		fisAccel.evaluate();
 		
         // Get the target speed
-		double targetSpeed = fisAccel.getVariable("output0").getValue();
-		
-		// Accel/brake command is exponentially scaled w.r.t. the difference between target speed and current one
-		return (float) (2/(1+Math.exp(sensors.getSpeed() - targetSpeed)) - 1);
+		return (float)fisAccel.getVariable("output0").getValue();
 	}
 
 	public Action control(SensorModel sensors){
