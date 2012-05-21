@@ -274,8 +274,8 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 
 	private Double[] processLine(String[] split) {
 		// Ignore the first and the last column
-		Double[] result = new Double[split.length - 2];
-		for(int i = 1;i < split.length - 1; i++)
+		Double[] result = new Double[split.length - 1];
+		for(int i = 1;i < split.length; i++)
 			result[i-1] = Double.parseDouble(split[i]);
 		return result;
 	}
