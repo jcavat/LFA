@@ -6,7 +6,7 @@ import net.sourceforge.jFuzzyLogic.FIS;
 /*
  * Driver for the TORCS server, using fuzzy systems
  */
-public class FuzzyDriver extends CarController{
+public class FuzzyDriver extends CarController implements ChromosomeDefinition{
 
 
 	// Gear Changing Constants
@@ -65,9 +65,9 @@ public class FuzzyDriver extends CarController{
 		// Evolve the FCL
 		try{
 			fisSteer = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(false));
-			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
-			
 			System.out.println(fisSteer);
+			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
+			System.out.println();
 			System.out.println(fisAccel);
 		}
 		catch(InvalidConfigurationException e){
@@ -115,29 +115,30 @@ public class FuzzyDriver extends CarController{
 
 	private float getSteer(SensorModel sensors){
 		// Set inputs
-		fisSteer.setVariable("angleToTrackAxis", sensors.getAngleToTrackAxis());
-		fisSteer.setVariable("trackPosition", sensors.getTrackPosition());
-
-        // Process the directions of the track
-		double dir = sensors.getTrackEdgeSensors()[11]-sensors.getTrackEdgeSensors()[7];
-		fisSteer.setVariable("direction", dir/2);
+		fisSteer.setVariable("input0", sensors.getSpeed());
+		fisSteer.setVariable("input1", sensors.getAngleToTrackAxis());
+		for(int i = 2; i < NB_INPUT; i++)
+			fisSteer.setVariable("input"+i, sensors.getTrackEdgeSensors()[i-2]);
 
 		// Evaluate the fuzzy system
 		fisSteer.evaluate();
 		
-		return (float)fisSteer.getVariable("steer").getValue();
+		return (float)fisSteer.getVariable("output0").getValue();
 	}
 
 	private float getAccel(SensorModel sensors, float steer)
 	{
-        // Set inputs
-		fisAccel.setVariable("focus_front", sensors.getTrackEdgeSensors()[9]);
-		
+		// Set inputs
+		fisSteer.setVariable("input0", sensors.getSpeed());
+		fisSteer.setVariable("input1", sensors.getAngleToTrackAxis());
+		for(int i = 2; i < NB_INPUT; i++)
+			fisSteer.setVariable("input"+i, sensors.getTrackEdgeSensors()[i-2]);
+
 		// Evaluate the fuzzy system
-		fisAccel.evaluate();
+		fisSteer.evaluate();
 		
         // Get the target speed
-		double targetSpeed = fisAccel.getVariable("speed").getValue();
+		double targetSpeed = fisAccel.getVariable("output0").getValue();
 		
 		// Accel/brake command is exponentially scaled w.r.t. the difference between target speed and current one
 		return (float) (2/(1+Math.exp(sensors.getSpeed() - targetSpeed)) - 1);

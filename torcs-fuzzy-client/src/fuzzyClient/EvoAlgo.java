@@ -121,7 +121,7 @@ public class EvoAlgo implements ChromosomeDefinition {
 		System.out.println("Total evolution time: " + ( endTime - startTime) + " ms");
 
 		IChromosome bestSolutionSoFar = population.getFittestChromosome();
-		System.out.println("Meilleure solution (fitness : " + bestSolutionSoFar.getFitnessValue()+" / 1'000'000) : ");
+		System.out.println("Meilleure solution (fitness : " + bestSolutionSoFar.getFitnessValue() + " / 1'000'000) : ");
 		
 		return bestSolutionSoFar;
 	}

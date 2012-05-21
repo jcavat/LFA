@@ -239,8 +239,10 @@ public class TorcsFitnessFunction extends FitnessFunction implements ChromosomeD
 			fis.evaluate();
 			
 			// Calcul the error
-			for(int i=0;i< NB_OUTPUT; i++)
+			for(int i=0;i < NB_OUTPUT; i++)
 				if(accel && i == 0)
+					error -= Math.abs(fis.getVariable("output" + i).getValue() - data[NB_INPUT + i + 1]);
+				else
 					error -= Math.abs(fis.getVariable("output" + i).getValue() - data[NB_INPUT + i]);
 		}
 
