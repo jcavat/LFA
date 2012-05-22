@@ -20,8 +20,8 @@ public class EvoAlgo implements ChromosomeDefinition {
 	 * The total number of times we'll let the population evolve.
 	 * the Population
 	 */
-	private static final int MAX_ALLOWED_EVOLUTIONS = 100;
-	private static final int POPULATION = 40;
+	private static final int MAX_ALLOWED_EVOLUTIONS = 10;
+	private static final int POPULATION = 10;
 	
 
 	/**
