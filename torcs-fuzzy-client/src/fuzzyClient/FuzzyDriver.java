@@ -59,20 +59,20 @@ public class FuzzyDriver extends CarController implements ChromosomeDefinition{
 
 	public FuzzyDriver() {
 		// Load from 'FCL' file
-		fisSteer = FIS.load(fclFileSteer,true);
-		fisAccel = FIS.load(fclFileAccel,true);
+//		fisSteer = FIS.load(fclFileSteer,true);
+//		fisAccel = FIS.load(fclFileAccel,true);
 		
 		// Evolve the FCL
-//		try{
-//			fisSteer = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(false));
-//			System.out.println(fisSteer);
-//			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
-//			System.out.println();
-//			System.out.println(fisAccel);
-//		}
-//		catch(InvalidConfigurationException e){
-//			System.err.println(e);
-//		}
+		try{
+			fisSteer = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(false));
+			System.out.println(fisSteer);
+			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
+			System.out.println();
+			System.out.println(fisAccel);
+		}
+		catch(InvalidConfigurationException e){
+			System.err.println(e);
+		}
 		 
 		// Error while loading?
 		if( fisSteer == null ) { 
