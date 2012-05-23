@@ -59,20 +59,20 @@ public class FuzzyDriver extends CarController implements ChromosomeDefinition{
 
 	public FuzzyDriver() {
 		// Load from 'FCL' file
-//		fisSteer = FIS.load(fclFileSteer,true);
-//		fisAccel = FIS.load(fclFileAccel,true);
+		fisSteer = FIS.load(fclFileSteer,true);
+		fisAccel = FIS.load(fclFileAccel,true);
 		
 		// Evolve the FCL
-		try{
-			fisSteer = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(false));
-			System.out.println(fisSteer);
-			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
-			System.out.println();
-			System.out.println(fisAccel);
-		}
-		catch(InvalidConfigurationException e){
-			System.err.println(e);
-		}
+//		try{
+//			fisSteer = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(false));
+//			System.out.println(fisSteer);
+//			fisAccel = TorcsFitnessFunction.constructFCL(EvoAlgo.launchEvo(true));
+//			System.out.println();
+//			System.out.println(fisAccel);
+//		}
+//		catch(InvalidConfigurationException e){
+//			System.err.println(e);
+//		}
 		 
 		// Error while loading?
 		if( fisSteer == null ) { 
@@ -115,10 +115,10 @@ public class FuzzyDriver extends CarController implements ChromosomeDefinition{
 
 	private float getSteer(SensorModel sensors){
 		// Set inputs
-		fisSteer.setVariable("input0", sensors.getSpeed());
+		fisSteer.setVariable("input0", sensors.getSpeed()/100.);
 		fisSteer.setVariable("input1", sensors.getAngleToTrackAxis());
 		for(int i = 2; i < NB_INPUT; i++)
-			fisSteer.setVariable("input"+i, sensors.getTrackEdgeSensors()[i-2]);
+			fisSteer.setVariable("input"+i, sensors.getTrackEdgeSensors()[i-2] / 100.);
 
 		// Evaluate the fuzzy system
 		fisSteer.evaluate();
